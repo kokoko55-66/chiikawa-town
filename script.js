@@ -56,6 +56,10 @@ const playerState = {
   size: 50
 };
 
+function getPlayerVisualSize() {
+  return isMobileLayout() ? 110 : 50;
+}
+
 const characters = [
   {
     id: 'chiikawa',
@@ -146,11 +150,11 @@ function createTown() {
   ];
 
   const mobileHouses = [
-    { x: 100, y: 60, width: 92, height: 70 },
-    { x: 760, y: 70, width: 92, height: 70 },
-    { x: 610, y: 540, width: 92, height: 70 },
-    { x: 350, y: 600, width: 92, height: 70 },
-    { x: 200, y: 140, width: 92, height: 70 }
+    { x: 90, y: 32, width: 92, height: 70 },
+    { x: 760, y: 30, width: 92, height: 70 },
+    { x: 620, y: 520, width: 92, height: 70 },
+    { x: 330, y: 560, width: 92, height: 70 },
+    { x: 180, y: 110, width: 92, height: 70 }
   ];
 
   const offsets = [
@@ -197,9 +201,9 @@ function createTown() {
   ];
 
   const mobileTrees = [
-    { x: 40, y: 90 }, { x: 160, y: 220 }, { x: 330, y: 80 },
-    { x: 520, y: 210 }, { x: 770, y: 120 }, { x: 850, y: 290 },
-    { x: 250, y: 520 }, { x: 610, y: 470 }, { x: 720, y: 560 }
+    { x: 30, y: 90 }, { x: 150, y: 200 }, { x: 320, y: 80 },
+    { x: 520, y: 210 }, { x: 760, y: 110 }, { x: 870, y: 270 },
+    { x: 250, y: 520 }, { x: 610, y: 470 }, { x: 720, y: 540 }
   ];
 
   if (isMobileLayout()) {
@@ -334,7 +338,7 @@ function createCharacterSVG(type) {
   img.src = getCharacterImagePath(type);
   img.alt = type;
   const isMobile = window.innerWidth <= 640;
-  const size = isMobile ? 110 : 64;
+  const size = isMobile ? 120 : 64;
   img.width = size;
   img.height = size;
   img.className = 'character-image';
@@ -356,8 +360,9 @@ function wrap(value, max) {
 }
 
 function clampToWorldBounds(x, y) {
-  const maxX = worldWidth - playerState.size;
-  const maxY = worldHeight - playerState.size;
+  const playerSize = isMobileLayout() ? 110 : playerState.size;
+  const maxX = worldWidth - playerSize;
+  const maxY = worldHeight - playerSize;
 
   return {
     x: clamp(x, 0, maxX),
@@ -534,7 +539,8 @@ function initializePlayer() {
   player.innerHTML = '';
 
   const isMobile = isMobileLayout();
-  const svgSize = isMobile ? 96 : 50;
+  const svgSize = getPlayerVisualSize();
+  playerState.size = isMobile ? 110 : 50;
 
   // SVGで顔を描画（薄いピンク色のかわいい顔）
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -577,8 +583,16 @@ function initializePlayer() {
 
 window.addEventListener('resize', () => {
   if (!player || !player.querySelector('svg')) return;
+
+  const size = getPlayerVisualSize();
   const svg = player.querySelector('svg');
-  const size = isMobileLayout() ? 96 : 50;
   svg.setAttribute('width', String(size));
   svg.setAttribute('height', String(size));
+
+  playerState.size = isMobileLayout() ? 110 : 50;
+  player.style.width = `${isMobileLayout() ? 116 : 50}px`;
+  player.style.height = `${isMobileLayout() ? 120 : 50}px`;
+  playerState.x = clamp(playerState.x, 0, worldWidth - playerState.size);
+  playerState.y = clamp(playerState.y, 0, worldHeight - playerState.size);
+  updatePlayerPosition();
 });

@@ -285,38 +285,38 @@ h1 {
 
   .map {
     min-height: 320px;
-    height: 360px;
-    max-height: 66vh;
+    height: 66vh;
+    max-height: 760px;
   }
 
   .character {
-    width: 118px;
+    width: 136px;
     padding-top: 10px;
   }
 
   .character-image {
-    width: 110px;
-    height: 110px;
+    width: 120px;
+    height: 120px;
   }
 
   .character-name {
-    font-size: 0.9rem;
-    margin-top: 4px;
+    font-size: 1rem;
+    margin-top: 6px;
   }
 
   .player {
-    width: 98px;
+    width: 116px;
     padding-top: 6px;
   }
 
   .player-svg {
-    width: 96px;
-    height: 96px;
+    width: 110px;
+    height: 110px;
   }
 
   .player-label {
-    font-size: 0.9rem;
-    margin-top: 4px;
+    font-size: 1rem;
+    margin-top: 6px;
   }
 
   .dialog {
