@@ -58,16 +58,33 @@ h1 {
   border: 3px solid rgba(104, 120, 156, 0.2);
   border-radius: 16px;
   overflow: hidden;
+  width: min(96vw, 980px);
 }
 
 .map {
   position: relative;
   width: 100%;
-  height: 620px;
+  aspect-ratio: 1000 / 620;
+  min-height: 360px;
   background:
     linear-gradient(var(--ground), var(--ground)),
     linear-gradient(90deg, transparent 0 100%);
   overflow: hidden;
+}
+
+.world {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1000px;
+  height: 620px;
+  transform: translate(-50%, -50%) scale(var(--world-scale, 1));
+  transform-origin: center center;
+  pointer-events: none;
+}
+
+.world * {
+  pointer-events: auto;
 }
 
 .map::before {
@@ -212,6 +229,12 @@ h1 {
   align-items: center;
   justify-content: flex-start;
   padding-top: 2px;
+  touch-action: none;
+  cursor: grab;
+}
+
+.player:active {
+  cursor: grabbing;
 }
 
 .player-svg {

@@ -1,7 +1,18 @@
 const map = document.getElementById('map');
+const world = document.getElementById('world');
 const player = document.getElementById('player');
 const dialogBox = document.getElementById('dialog-box');
 const dialogText = document.getElementById('dialog-text');
+
+const dragState = {
+  active: false,
+  startX: 0,
+  startY: 0,
+  originX: 0,
+  originY: 0
+};
+
+let worldScale = 1;
 
 function getVoiceProfile(characterName) {
   const profiles = {
@@ -150,7 +161,7 @@ function createTown() {
       elem.style.top = `${house.y + offset.dy}px`;
       elem.style.width = `${house.width}px`;
       elem.style.height = `${house.height}px`;
-      map.appendChild(elem);
+      world.appendChild(elem);
     });
   });
 
@@ -166,7 +177,7 @@ function createTown() {
       elem.className = 'tree';
       elem.style.left = `${tree.x + offset.dx}px`;
       elem.style.top = `${tree.y + offset.dy}px`;
-      map.appendChild(elem);
+      world.appendChild(elem);
     });
   });
 
@@ -217,7 +228,7 @@ function createTown() {
       });
 
       character.instances.push({ element: elem, offset });
-      map.appendChild(elem);
+      world.appendChild(elem);
     });
   });
 }
@@ -366,6 +377,52 @@ function movePlayer(dx, dy) {
   // 衝突があれば移動しない（キャラの会話はcheckCollisionWithCharacters内で表示される）
 }
 
+function updateWorldScale() {
+  const rect = map.getBoundingClientRect();
+  const nextScale = Math.min(rect.width / worldWidth, rect.height / worldHeight);
+  worldScale = Number.isFinite(nextScale) ? nextScale : 1;
+  world.style.setProperty('--world-scale', worldScale.toFixed(4));
+}
+
+function startDragPlayer(event) {
+  if (event.pointerType === 'mouse' && event.button !== 0) return;
+  event.preventDefault();
+  dragState.active = true;
+  dragState.startX = event.clientX;
+  dragState.startY = event.clientY;
+  dragState.originX = playerState.x;
+  dragState.originY = playerState.y;
+  player.setPointerCapture?.(event.pointerId);
+}
+
+function movePlayerByPointer(event) {
+  if (!dragState.active) return;
+
+  const dx = (event.clientX - dragState.startX) / worldScale;
+  const dy = (event.clientY - dragState.startY) / worldScale;
+
+  const targetX = wrap(dragState.originX + Math.round(dx), worldWidth);
+  const targetY = wrap(dragState.originY + Math.round(dy), worldHeight);
+
+  playerState.x = targetX;
+  playerState.y = targetY;
+  updatePlayerPosition();
+
+  const collidedCharacter = checkCollisionWithCharacters(targetX, targetY);
+  if (collidedCharacter) {
+    const message = collidedCharacter.lines[Math.floor(Math.random() * collidedCharacter.lines.length)];
+    showCharacterDialogue(collidedCharacter.name, message);
+  }
+}
+
+function endDragPlayer(event) {
+  if (!dragState.active) return;
+  dragState.active = false;
+  if (event && event.pointerId !== undefined) {
+    player.releasePointerCapture?.(event.pointerId);
+  }
+}
+
 function setupControls() {
   const keyMap = {
     ArrowUp: [0, -32],
@@ -384,11 +441,18 @@ function setupControls() {
     event.preventDefault();
     movePlayer(direction[0], direction[1]);
   });
+
+  player.addEventListener('pointerdown', startDragPlayer);
+  document.addEventListener('pointermove', movePlayerByPointer);
+  document.addEventListener('pointerup', endDragPlayer);
+  document.addEventListener('pointercancel', endDragPlayer);
+  window.addEventListener('resize', updateWorldScale);
 }
 
 createTown();
 initializePlayer();
 updatePlayerPosition();
+updateWorldScale();
 animateCharacters();
 setupControls();
 
