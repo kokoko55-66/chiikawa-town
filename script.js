@@ -61,7 +61,10 @@ function isMobileLayout() {
 }
 
 function getWorldHeight() {
-  return isMobileLayout() ? Math.floor(baseWorldHeight * 2 / 3) : baseWorldHeight;
+  const isMobile = isMobileLayout();
+  const height = isMobile ? Math.floor(baseWorldHeight * 2 / 3) : baseWorldHeight;
+  console.log('getWorldHeight() - isMobile:', isMobile, 'calculated height:', height);
+  return height;
 }
 
 let worldHeight = getWorldHeight();
@@ -72,8 +75,12 @@ const playerState = {
   size: 50
 };
 
+// モバイル版ではラベルを含めた実際の表示領域で境界判定を行う
+ const MOBILE_PLAYER_BOX = { width: 110, height: 118 };
+const MOBILE_CHARACTER_BOX = { width: 120, height: 130, imageSize: 100 };
+
 function getPlayerVisualSize() {
-  return isMobileLayout() ? 125 : 50;
+  return isMobileLayout() ? 90 : 50;
 }
 
 const characters = [
@@ -83,7 +90,7 @@ const characters = [
     className: 'chiikawa',
     x: 240,
     y: 80,
-    mobileY: 60,
+    mobileY: 80,
     lines: [
       'わァ……',
       'ヤーッ！',
@@ -149,7 +156,7 @@ const characters = [
     className: 'momonga',
     x: 660,
     y: 280,
-    mobileY: 340,
+    mobileY: 320,
     lines: [
       'イーヤーヤダヤダ',
       'どうウマイ？ ちゃんと見てるでしょ？',
@@ -162,6 +169,9 @@ const characters = [
 ];
 
 function createTown() {
+  const isMobile = isMobileLayout();
+  console.log('createTown() - isMobile:', isMobile, 'worldHeight:', worldHeight);
+  
   const houses = [
     { x: 120, y: 420, width: 92, height: 70 },
     { x: 760, y: 420, width: 92, height: 70 },
@@ -171,17 +181,17 @@ function createTown() {
   ];
 
   const mobileHouses = [
-    // 上部
-    { x: 90, y: 10, width: 92, height: 70 },
-    { x: 760, y: 15, width: 92, height: 70 },
-    { x: 500, y: 5, width: 92, height: 70 },
-    // 中部
-    { x: 180, y: 145, width: 92, height: 70 },
-    { x: 700, y: 165, width: 92, height: 70 },
-    // 下部
-    { x: 620, y: 310, width: 92, height: 70 },
-    { x: 330, y: 330, width: 92, height: 70 },
-    { x: 100, y: 320, width: 92, height: 70 }
+    // 上部（y: 0-130）
+    { x: 80, y: 20, width: 92, height: 70 },
+    { x: 750, y: 30, width: 92, height: 70 },
+    { x: 450, y: 10, width: 92, height: 70 },
+    // 中部（y: 130-275）
+    { x: 150, y: 160, width: 92, height: 70 },
+    { x: 750, y: 180, width: 92, height: 70 },
+    // 下部（y: 275-413）
+    { x: 600, y: 320, width: 92, height: 70 },
+    { x: 280, y: 340, width: 92, height: 70 },
+    { x: 50, y: 310, width: 92, height: 70 }
   ];
 
   const offsets = [
@@ -228,14 +238,14 @@ function createTown() {
   ];
 
   const mobileTrees = [
-    // 上部
-    { x: 30, y: 20 }, { x: 150, y: 40 }, { x: 320, y: 15 },
-    { x: 520, y: 35 }, { x: 760, y: 25 }, { x: 870, y: 40 },
-    // 中部
-    { x: 100, y: 160 }, { x: 400, y: 180 }, { x: 750, y: 130 },
-    // 下部
-    { x: 250, y: 310 }, { x: 610, y: 290 }, { x: 720, y: 330 },
-    { x: 50, y: 340 }, { x: 900, y: 320 }
+    // 上部（y: 0-130）
+    { x: 30, y: 25 }, { x: 150, y: 50 }, { x: 320, y: 30 },
+    { x: 520, y: 45 }, { x: 760, y: 35 }, { x: 870, y: 55 },
+    // 中部（y: 130-275）
+    { x: 100, y: 165 }, { x: 400, y: 190 }, { x: 750, y: 145 },
+    // 下部（y: 275-413）
+    { x: 250, y: 290 }, { x: 610, y: 310 }, { x: 720, y: 295 },
+    { x: 50, y: 320 }, { x: 900, y: 305 }
   ];
 
   if (isMobileLayout()) {
@@ -261,6 +271,9 @@ function createTown() {
   characters.forEach((character) => {    // モバイル版ではmobileYを使用
     if (isMobileLayout()) {
       character.y = character.mobileY;
+      // 画面上下にはみ出さないようにボックス全体を世界内に収める
+      character.x = clamp(character.x, 0, worldWidth - MOBILE_CHARACTER_BOX.width);
+      character.y = clamp(character.y, 0, worldHeight - MOBILE_CHARACTER_BOX.height);
     }
         character.baseX = character.x;
     character.baseY = character.y;
@@ -342,6 +355,12 @@ function animateCharacters() {
       character.y = clamp(character.y, character.baseY - motion.rangeY, character.baseY + motion.rangeY);
     }
 
+    // モバイル版では画面上下にはみ出さないように再度境界内に収める
+    if (isMobileLayout()) {
+      character.x = clamp(character.x, 0, worldWidth - MOBILE_CHARACTER_BOX.width);
+      character.y = clamp(character.y, 0, worldHeight - MOBILE_CHARACTER_BOX.height);
+    }
+
     if (Math.random() < 0.02) {
       motion.vx *= Math.random() > 0.5 ? 1 : -1;
       motion.vy *= Math.random() > 0.5 ? 1 : -1;
@@ -373,7 +392,7 @@ function createCharacterSVG(type) {
   img.src = getCharacterImagePath(type);
   img.alt = type;
   const isMobile = window.innerWidth <= 640;
-  const size = isMobile ? 150 : 64;
+  const size = isMobile ? MOBILE_CHARACTER_BOX.imageSize : 64;
   img.width = size;
   img.height = size;
   img.className = 'character-image';
@@ -395,9 +414,10 @@ function wrap(value, max) {
 }
 
 function clampToWorldBounds(x, y) {
-  const playerSize = isMobileLayout() ? 125 : playerState.size;
-  const maxX = worldWidth - playerSize;
-  const maxY = getWorldHeight() - playerSize;
+  const boxWidth = isMobileLayout() ? MOBILE_PLAYER_BOX.width : playerState.size;
+  const boxHeight = isMobileLayout() ? MOBILE_PLAYER_BOX.height : playerState.size;
+  const maxX = worldWidth - boxWidth;
+  const maxY = getWorldHeight() - boxHeight;
 
   return {
     x: clamp(x, 0, maxX),
@@ -477,10 +497,24 @@ function updateWorldScale() {
   const rect = map.getBoundingClientRect();
   const nextScale = Math.min(rect.width / worldWidth, rect.height / worldHeight);
   worldScale = Number.isFinite(nextScale) ? nextScale : 1;
-  world.style.setProperty('--world-scale', worldScale.toFixed(4));
-  world.style.setProperty('--world-height', `${worldHeight}px`);
-  world.style.height = `${worldHeight}px`;
-  map.style.setProperty('--map-aspect-ratio', `${worldWidth} / ${worldHeight}`);
+  
+  // CSS変数をrootに設定
+  const root = document.documentElement;
+  root.style.setProperty('--world-scale', worldScale.toFixed(4));
+  root.style.setProperty('--world-height', `${worldHeight}px`);
+  root.style.setProperty('--map-aspect-ratio', `${worldWidth} / ${worldHeight}`);
+  
+  // world要素の高さを直接設定
+  if (world) {
+    world.style.height = `${worldHeight}px`;
+    console.log('updateWorldScale() - world.style.height set to:', world.style.height);
+  }
+  
+  // map要素のアスペクト比を直接設定
+  if (map) {
+    map.style.aspectRatio = `${worldWidth} / ${worldHeight}`;
+    console.log('updateWorldScale() - map.style.aspectRatio set to:', map.style.aspectRatio);
+  }
 }
 
 function startDragPlayer(event) {
@@ -566,17 +600,45 @@ function setupControls() {
   window.addEventListener('resize', updateWorldScale);
 }
 
-createTown();
-initializePlayer();
-updatePlayerPosition();
-updateWorldScale();
-animateCharacters();
-setupControls();
-
-// モバイル版で worldHeight が正しく設定されることを確認
-window.addEventListener('load', () => {
+// ページ読み込み完了後に初期化
+function initializeGame() {
+  // モバイル版かどうかを確認し、worldHeight を正しく設定
+  const isMobile = isMobileLayout();
   worldHeight = getWorldHeight();
+  
+  console.log('=== Game Initialization ===');
+  console.log('isMobile:', isMobile);
+  console.log('window.innerWidth:', window.innerWidth);
+  console.log('baseWorldHeight:', baseWorldHeight);
+  console.log('worldHeight:', worldHeight);
+  console.log('document.readyState:', document.readyState);
+  
+  createTown();
+  initializePlayer();
+  updatePlayerPosition();
   updateWorldScale();
+  animateCharacters();
+  setupControls();
+  
+  console.log('=== Initialization Complete ===');
+}
+
+// 二重初期化防止（DOMContentLoadedとloadの両方が発火しても1回だけ実行）
+function initializeGameOnce(source) {
+  console.log(`${source} fired`);
+  if (window.gameInitialized) return;
+  window.gameInitialized = true;
+  initializeGame();
+}
+
+// DOMContentLoaded時に実行
+document.addEventListener('DOMContentLoaded', () => {
+  initializeGameOnce('DOMContentLoaded');
+});
+
+// ページ読み込み完了時にも実行（念のため）
+window.addEventListener('load', () => {
+  initializeGameOnce('Window load');
 });
 
 function initializePlayer() {
@@ -585,7 +647,7 @@ function initializePlayer() {
 
   const isMobile = isMobileLayout();
   const svgSize = getPlayerVisualSize();
-  playerState.size = isMobile ? 125 : 50;
+  playerState.size = isMobile ? 90 : 50;
 
   // SVGで顔を描画（薄いピンク色のかわいい顔）
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -634,11 +696,13 @@ window.addEventListener('resize', () => {
   svg.setAttribute('width', String(size));
   svg.setAttribute('height', String(size));
 
-  playerState.size = isMobileLayout() ? 125 : 50;
-  player.style.width = `${isMobileLayout() ? 140 : 50}px`;
-  player.style.height = `${isMobileLayout() ? 155 : 50}px`;
-  playerState.x = clamp(playerState.x, 0, worldWidth - playerState.size);
-  playerState.y = clamp(playerState.y, 0, getWorldHeight() - playerState.size);
+  playerState.size = isMobileLayout() ? 90 : 50;
+  player.style.width = `${isMobileLayout() ? MOBILE_PLAYER_BOX.width : 50}px`;
+  player.style.height = `${isMobileLayout() ? MOBILE_PLAYER_BOX.height : 50}px`;
+  const boxWidth = isMobileLayout() ? MOBILE_PLAYER_BOX.width : playerState.size;
+  const boxHeight = isMobileLayout() ? MOBILE_PLAYER_BOX.height : playerState.size;
+  playerState.x = clamp(playerState.x, 0, worldWidth - boxWidth);
+  playerState.y = clamp(playerState.y, 0, getWorldHeight() - boxHeight);
   updatePlayerPosition();
   updateWorldScale();
 });

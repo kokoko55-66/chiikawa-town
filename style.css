@@ -10,6 +10,8 @@
   --player: #ff8ea1;
   --dialog-bg: rgba(255, 255, 255, 0.96);
   --shadow: rgba(0, 0, 0, 0.12);
+  --world-height: 620px;
+  --map-aspect-ratio: 1000 / 620;
 }
 
 * {
@@ -295,38 +297,38 @@ h1 {
   }
 
   .map {
-    min-height: 280px;
-    height: 65vh;
+    min-height: 0;
     max-height: 720px;
+    aspect-ratio: 1000 / 413;
   }
 
   .character {
-    width: 170px;
-    padding-top: 8px;
+    width: 120px;
+    padding-top: 6px;
   }
 
   .character-image {
-    width: 150px;
-    height: 150px;
+    width: 100px;
+    height: 100px;
   }
 
   .character-name {
-    font-size: 1.1rem;
+    font-size: 1rem;
     margin-top: 2px;
   }
 
   .player {
-    width: 140px;
-    padding-top: 6px;
+    width: 110px;
+    padding-top: 4px;
   }
 
   .player-svg {
-    width: 125px;
-    height: 125px;
+    width: 90px;
+    height: 90px;
   }
 
   .player-label {
-    font-size: 1.1rem;
+    font-size: 1rem;
     margin-top: 2px;
   }
 
