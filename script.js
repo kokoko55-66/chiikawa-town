@@ -420,12 +420,26 @@ function movePlayerByPointer(event) {
   const dx = (event.clientX - dragState.startX) / worldScale;
   const dy = (event.clientY - dragState.startY) / worldScale;
 
-  const targetX = isMobileLayout()
-    ? clampToWorldBounds(dragState.originX + Math.round(dx), dragState.originY).x
-    : wrap(dragState.originX + Math.round(dx), worldWidth);
-  const targetY = isMobileLayout()
-    ? clampToWorldBounds(dragState.originX, dragState.originY + Math.round(dy)).y
-    : wrap(dragState.originY + Math.round(dy), worldHeight);
+  if (isMobileLayout()) {
+    const next = clampToWorldBounds(
+      dragState.originX + Math.round(dx),
+      dragState.originY + Math.round(dy)
+    );
+
+    playerState.x = next.x;
+    playerState.y = next.y;
+    updatePlayerPosition();
+
+    const collidedCharacter = checkCollisionWithCharacters(next.x, next.y);
+    if (collidedCharacter) {
+      const message = collidedCharacter.lines[Math.floor(Math.random() * collidedCharacter.lines.length)];
+      showCharacterDialogue(collidedCharacter.name, message);
+    }
+    return;
+  }
+
+  const targetX = wrap(dragState.originX + Math.round(dx), worldWidth);
+  const targetY = wrap(dragState.originY + Math.round(dy), worldHeight);
 
   playerState.x = targetX;
   playerState.y = targetY;

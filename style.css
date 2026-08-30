@@ -285,7 +285,8 @@ h1 {
 
   .map {
     min-height: 320px;
-    height: 420px;
+    height: 360px;
+    max-height: 66vh;
   }
 
   .character {
