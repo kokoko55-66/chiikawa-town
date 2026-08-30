@@ -46,6 +46,10 @@ function showCharacterDialogue(characterName, message) {
 const worldWidth = 1000;
 const worldHeight = 620;
 
+function isMobileLayout() {
+  return window.innerWidth <= 640;
+}
+
 const playerState = {
   x: 120,
   y: 120,
@@ -312,8 +316,17 @@ function clamp(value, min, max) {
 }
 
 function wrap(value, max) {
-  // 値を0からmaxの範囲にラップ
   return ((value % max) + max) % max;
+}
+
+function clampToWorldBounds(x, y) {
+  const maxX = worldWidth - playerState.size;
+  const maxY = worldHeight - playerState.size;
+
+  return {
+    x: clamp(x, 0, maxX),
+    y: clamp(y, 0, maxY)
+  };
 }
 
 function checkCollisionWithCharacters(newX, newY) {
@@ -364,20 +377,23 @@ function checkCollisionWithCharacters(newX, newY) {
 }
 
 function movePlayer(dx, dy) {
-  // 新しい位置を計算
-  const newX = wrap(playerState.x + dx, worldWidth);
-  const newY = wrap(playerState.y + dy, worldHeight);
+  const candidateX = playerState.x + dx;
+  const candidateY = playerState.y + dy;
 
-  // 衝突判定を実施
-  const collidedCharacter = checkCollisionWithCharacters(newX, newY);
+  const nextPosition = isMobileLayout()
+    ? clampToWorldBounds(candidateX, candidateY)
+    : {
+        x: wrap(candidateX, worldWidth),
+        y: wrap(candidateY, worldHeight)
+      };
 
-  // 衝突がなければ移動
+  const collidedCharacter = checkCollisionWithCharacters(nextPosition.x, nextPosition.y);
+
   if (!collidedCharacter) {
-    playerState.x = newX;
-    playerState.y = newY;
+    playerState.x = nextPosition.x;
+    playerState.y = nextPosition.y;
     updatePlayerPosition();
   }
-  // 衝突があれば移動しない（キャラの会話はcheckCollisionWithCharacters内で表示される）
 }
 
 function updateWorldScale() {
@@ -404,8 +420,12 @@ function movePlayerByPointer(event) {
   const dx = (event.clientX - dragState.startX) / worldScale;
   const dy = (event.clientY - dragState.startY) / worldScale;
 
-  const targetX = wrap(dragState.originX + Math.round(dx), worldWidth);
-  const targetY = wrap(dragState.originY + Math.round(dy), worldHeight);
+  const targetX = isMobileLayout()
+    ? clampToWorldBounds(dragState.originX + Math.round(dx), dragState.originY).x
+    : wrap(dragState.originX + Math.round(dx), worldWidth);
+  const targetY = isMobileLayout()
+    ? clampToWorldBounds(dragState.originX, dragState.originY + Math.round(dy)).y
+    : wrap(dragState.originY + Math.round(dy), worldHeight);
 
   playerState.x = targetX;
   playerState.y = targetY;
