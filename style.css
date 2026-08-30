@@ -303,33 +303,33 @@ h1 {
   }
 
   .character {
-    width: 120px;
-    padding-top: 6px;
+    width: 180px;
+    padding-top: 9px;
   }
 
   .character-image {
-    width: 100px;
-    height: 100px;
+    width: 150px;
+    height: 150px;
   }
 
   .character-name {
-    font-size: 1rem;
-    margin-top: 2px;
+    font-size: 1.3rem;
+    margin-top: 3px;
   }
 
   .player {
-    width: 110px;
-    padding-top: 4px;
+    width: 165px;
+    padding-top: 6px;
   }
 
   .player-svg {
-    width: 90px;
-    height: 90px;
+    width: 135px;
+    height: 135px;
   }
 
   .player-label {
-    font-size: 1rem;
-    margin-top: 2px;
+    font-size: 1.3rem;
+    margin-top: 3px;
   }
 
   .dialog {

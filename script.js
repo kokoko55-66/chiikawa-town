@@ -77,11 +77,11 @@ const playerState = {
 };
 
 // モバイル版ではラベルを含めた実際の表示領域で境界判定を行う
- const MOBILE_PLAYER_BOX = { width: 110, height: 118 };
-const MOBILE_CHARACTER_BOX = { width: 120, height: 130, imageSize: 100 };
+ const MOBILE_PLAYER_BOX = { width: 165, height: 177 };
+const MOBILE_CHARACTER_BOX = { width: 180, height: 195, imageSize: 150 };
 
 function getPlayerVisualSize() {
-  return isMobileLayout() ? 90 : 50;
+  return isMobileLayout() ? 135 : 50;
 }
 
 const characters = [
@@ -658,7 +658,7 @@ function initializePlayer() {
 
   const isMobile = isMobileLayout();
   const svgSize = getPlayerVisualSize();
-  playerState.size = isMobile ? 90 : 50;
+  playerState.size = isMobile ? 135 : 50;
 
   // SVGで顔を描画（薄いピンク色のかわいい顔）
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -707,7 +707,7 @@ window.addEventListener('resize', () => {
   svg.setAttribute('width', String(size));
   svg.setAttribute('height', String(size));
 
-  playerState.size = isMobileLayout() ? 90 : 50;
+  playerState.size = isMobileLayout() ? 135 : 50;
   player.style.width = `${isMobileLayout() ? MOBILE_PLAYER_BOX.width : 50}px`;
   player.style.height = `${isMobileLayout() ? MOBILE_PLAYER_BOX.height : 50}px`;
   const boxWidth = isMobileLayout() ? MOBILE_PLAYER_BOX.width : playerState.size;
