@@ -272,9 +272,10 @@ h1 {
   color: #374151;
 }
 
-@media (max-width: 700px) {
+@media (max-width: 640px) {
   .game-wrapper {
     padding: 12px;
+    width: min(94vw, 980px);
   }
 
   .hud {
@@ -283,6 +284,39 @@ h1 {
   }
 
   .map {
-    height: 480px;
+    min-height: 320px;
+    height: 420px;
+  }
+
+  .character {
+    width: 92px;
+    padding-top: 8px;
+  }
+
+  .character-image {
+    width: 92px;
+    height: 92px;
+  }
+
+  .character-name {
+    font-size: 0.78rem;
+  }
+
+  .player {
+    width: 80px;
+    padding-top: 4px;
+  }
+
+  .player-svg {
+    width: 80px;
+    height: 80px;
+  }
+
+  .player-label {
+    font-size: 0.8rem;
+  }
+
+  .dialog {
+    padding: 12px 14px;
   }
 }

@@ -152,9 +152,10 @@ function createTown() {
     { dx: worldWidth, dy: -worldHeight },
     { dx: worldWidth, dy: worldHeight }
   ];
+  const sceneOffsets = window.innerWidth <= 640 ? [{ dx: 0, dy: 0 }] : offsets;
 
   houses.forEach((house) => {
-    offsets.forEach((offset) => {
+    sceneOffsets.forEach((offset) => {
       const elem = document.createElement('div');
       elem.className = 'house';
       elem.style.left = `${house.x + offset.dx}px`;
@@ -172,7 +173,7 @@ function createTown() {
   ];
 
   trees.forEach((tree) => {
-    offsets.forEach((offset) => {
+    sceneOffsets.forEach((offset) => {
       const elem = document.createElement('div');
       elem.className = 'tree';
       elem.style.left = `${tree.x + offset.dx}px`;
@@ -194,7 +195,7 @@ function createTown() {
     character.instances = [];
 
     // ワールドがラップするので、キャラクターも複数位置に描画
-    const offsets = [
+    const characterOffsets = window.innerWidth <= 640 ? [{ dx: 0, dy: 0 }] : [
       { dx: 0, dy: 0 },
       { dx: -worldWidth, dy: 0 },
       { dx: worldWidth, dy: 0 },
@@ -206,7 +207,7 @@ function createTown() {
       { dx: worldWidth, dy: worldHeight }
     ];
 
-    offsets.forEach((offset) => {
+    characterOffsets.forEach((offset) => {
       const elem = document.createElement('button');
       elem.type = 'button';
       elem.className = `character ${character.className}`;
@@ -292,8 +293,10 @@ function createCharacterSVG(type) {
   const img = document.createElement('img');
   img.src = getCharacterImagePath(type);
   img.alt = type;
-  img.width = 64;
-  img.height = 64;
+  const isMobile = window.innerWidth <= 640;
+  const size = isMobile ? 92 : 64;
+  img.width = size;
+  img.height = size;
   img.className = 'character-image';
   img.draggable = false;
   return img;
