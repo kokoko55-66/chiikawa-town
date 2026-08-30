@@ -58,7 +58,7 @@ let worldHeight = getWorldHeight();
 
 const playerState = {
   x: 120,
-  y: 120,
+  y: isMobileLayout() ? 200 : 120,
   size: 50
 };
 
@@ -72,7 +72,8 @@ const characters = [
     name: 'ちいかわ',
     className: 'chiikawa',
     x: 240,
-    y: 120,
+    y: 80,
+    mobileY: 60,
     lines: [
       'わァ……',
       'ヤーッ！',
@@ -90,6 +91,7 @@ const characters = [
     className: 'usagi',
     x: 520,
     y: 150,
+    mobileY: 200,
     lines: [
       'ヤハ！ ここ、すごく落ち着くね。',
       'ウラッ……おひるね、しちゃってもいいかも。',
@@ -105,6 +107,7 @@ const characters = [
     className: 'hachiware',
     x: 780,
     y: 90,
+    mobileY: 45,
     lines: [
       '今日はちょっとだけ張り切ってるよ。',
       'このあたり、空気がいいね。ってことは、きっと大丈夫。',
@@ -120,6 +123,7 @@ const characters = [
     className: 'kurimanju',
     x: 310,
     y: 270,
+    mobileY: 310,
     lines: [
       'ハーッ……',
       'うっ……ハーッ…',
@@ -135,6 +139,7 @@ const characters = [
     className: 'momonga',
     x: 660,
     y: 280,
+    mobileY: 340,
     lines: [
       'イーヤーヤダヤダ',
       'どうウマイ？ ちゃんと見てるでしょ？',
@@ -243,8 +248,11 @@ function createTown() {
     });
   }
 
-  characters.forEach((character) => {
-    character.baseX = character.x;
+  characters.forEach((character) => {    // モバイル版ではmobileYを使用
+    if (isMobileLayout()) {
+      character.y = character.mobileY;
+    }
+        character.baseX = character.x;
     character.baseY = character.y;
     character.motion = {
       vx: (Math.random() > 0.5 ? 1 : -1) * (0.2 + Math.random() * 0.5),
