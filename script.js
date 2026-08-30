@@ -1,0 +1,436 @@
+const map = document.getElementById('map');
+const player = document.getElementById('player');
+const dialogBox = document.getElementById('dialog-box');
+const dialogText = document.getElementById('dialog-text');
+
+function getVoiceProfile(characterName) {
+  const profiles = {
+    'ちいかわ': { rate: 1.15, pitch: 1.35, volume: 1 },
+    'うさぎ': { rate: 0.95, pitch: 1.0, volume: 1 },
+    'はちわれ': { rate: 1.0, pitch: 0.9, volume: 1 },
+    'なとり': { rate: 0.9, pitch: 0.8, volume: 1 },
+    'タマ': { rate: 1.05, pitch: 1.5, volume: 1 }
+  };
+
+  return profiles[characterName] || { rate: 1.0, pitch: 1.0, volume: 1 };
+}
+
+function showCharacterDialogue(characterName, message) {
+  const text = `${characterName}: ${message}`;
+  dialogText.textContent = text;
+
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(message);
+    const profile = getVoiceProfile(characterName);
+
+    utterance.lang = 'ja-JP';
+    utterance.rate = profile.rate;
+    utterance.pitch = profile.pitch;
+    utterance.volume = profile.volume;
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+const worldWidth = 1000;
+const worldHeight = 620;
+
+const playerState = {
+  x: 120,
+  y: 120,
+  size: 50
+};
+
+const characters = [
+  {
+    id: 'chiikawa',
+    name: 'ちいかわ',
+    className: 'chiikawa',
+    x: 240,
+    y: 180,
+    lines: [
+      'わァ……',
+      'ヤーッ！',
+      'フッ……',
+      '泣いちゃった……',
+      'なんとかなれーッ!!',
+      'えへへ……こっちだね。',
+      'うわっ……びっくりした！',
+      'よし、いけるかも……！'
+    ]
+  },
+  {
+    id: 'usagi',
+    name: 'うさぎ',
+    className: 'usagi',
+    x: 520,
+    y: 250,
+    lines: [
+      'ヤハ！ ここ、すごく落ち着くね。',
+      'ウラッ……おひるね、しちゃってもいいかも。',
+      'ハァ？ こっちの草むら、ちょっとだけ気になる。',
+      'ふわぁ……あの風、やさしいよね。',
+      'ハッ、今日はなんだかおだやかだな。',
+      'うわっ、びっくりした！でも、まあいいか。'
+    ]
+  },
+  {
+    id: 'hachiware',
+    name: 'はちわれ',
+    className: 'hachiware',
+    x: 780,
+    y: 190,
+    lines: [
+      '今日はちょっとだけ張り切ってるよ。',
+      'このあたり、空気がいいね。ってことは、きっと大丈夫。',
+      'お腹がすいたけど、焦んなくて大丈夫だよー。',
+      'あの木の下、ちょっとだけ安心するね。',
+      'ひと息つくには、こういう場所がぴったりだよ。',
+      'ちゃんと見てると、いいことありそうだね。'
+    ]
+  },
+  {
+    id: 'kurimanju',
+    name: 'くりまんじゅう',
+    className: 'kurimanju',
+    x: 310,
+    y: 410,
+    lines: [
+      'ハーッ……',
+      'うっ……ハーッ…',
+      'しょっぱみがあって……うまッ',
+      'ハーッ……このおつまみ、いいね。',
+      '……ちょっと、いい気分だ。',
+      'ごちそうさま……ハーッ…'
+    ]
+  },
+  {
+    id: 'momonga',
+    name: 'モモンガ',
+    className: 'momonga',
+    x: 660,
+    y: 420,
+    lines: [
+      'イーヤーヤダヤダ',
+      'どうウマイ？ ちゃんと見てるでしょ？',
+      'しょっぱみがあって……うまッ',
+      'ちょっと、こっちを見てよ。',
+      'えー、もっとかわいく言ってよ。',
+      '古本屋、ちょっと来て。'
+    ]
+  }
+];
+
+function createTown() {
+  const houses = [
+    { x: 120, y: 420, width: 92, height: 70 },
+    { x: 760, y: 420, width: 92, height: 70 },
+    { x: 630, y: 500, width: 92, height: 70 },
+    { x: 450, y: 480, width: 92, height: 70 },
+    { x: 220, y: 500, width: 92, height: 70 }
+  ];
+
+  const offsets = [
+    { dx: 0, dy: 0 },
+    { dx: -worldWidth, dy: 0 },
+    { dx: worldWidth, dy: 0 },
+    { dx: 0, dy: -worldHeight },
+    { dx: 0, dy: worldHeight },
+    { dx: -worldWidth, dy: -worldHeight },
+    { dx: -worldWidth, dy: worldHeight },
+    { dx: worldWidth, dy: -worldHeight },
+    { dx: worldWidth, dy: worldHeight }
+  ];
+
+  houses.forEach((house) => {
+    offsets.forEach((offset) => {
+      const elem = document.createElement('div');
+      elem.className = 'house';
+      elem.style.left = `${house.x + offset.dx}px`;
+      elem.style.top = `${house.y + offset.dy}px`;
+      elem.style.width = `${house.width}px`;
+      elem.style.height = `${house.height}px`;
+      map.appendChild(elem);
+    });
+  });
+
+  const trees = [
+    { x: 80, y: 300 }, { x: 170, y: 330 }, { x: 390, y: 300 },
+    { x: 540, y: 320 }, { x: 710, y: 330 }, { x: 860, y: 300 },
+    { x: 890, y: 390 }, { x: 290, y: 520 }, { x: 600, y: 560 }
+  ];
+
+  trees.forEach((tree) => {
+    offsets.forEach((offset) => {
+      const elem = document.createElement('div');
+      elem.className = 'tree';
+      elem.style.left = `${tree.x + offset.dx}px`;
+      elem.style.top = `${tree.y + offset.dy}px`;
+      map.appendChild(elem);
+    });
+  });
+
+  characters.forEach((character) => {
+    character.baseX = character.x;
+    character.baseY = character.y;
+    character.motion = {
+      vx: (Math.random() > 0.5 ? 1 : -1) * (0.2 + Math.random() * 0.5),
+      vy: (Math.random() > 0.5 ? 1 : -1) * (0.2 + Math.random() * 0.5),
+      rangeX: 18 + Math.random() * 28,
+      rangeY: 18 + Math.random() * 28,
+      pauseTimer: 0
+    };
+    character.instances = [];
+
+    // ワールドがラップするので、キャラクターも複数位置に描画
+    const offsets = [
+      { dx: 0, dy: 0 },
+      { dx: -worldWidth, dy: 0 },
+      { dx: worldWidth, dy: 0 },
+      { dx: 0, dy: -worldHeight },
+      { dx: 0, dy: worldHeight },
+      { dx: -worldWidth, dy: -worldHeight },
+      { dx: -worldWidth, dy: worldHeight },
+      { dx: worldWidth, dy: -worldHeight },
+      { dx: worldWidth, dy: worldHeight }
+    ];
+
+    offsets.forEach((offset) => {
+      const elem = document.createElement('button');
+      elem.type = 'button';
+      elem.className = `character ${character.className}`;
+      elem.style.left = `${character.x + offset.dx}px`;
+      elem.style.top = `${character.y + offset.dy}px`;
+      elem.setAttribute('aria-label', character.name);
+
+      const svg = createCharacterSVG(character.className);
+      elem.appendChild(svg);
+
+      const nameLabel = document.createElement('div');
+      nameLabel.className = 'character-name';
+      nameLabel.textContent = character.name;
+      elem.appendChild(nameLabel);
+
+      elem.addEventListener('click', () => {
+        const message = character.lines[Math.floor(Math.random() * character.lines.length)];
+        showCharacterDialogue(character.name, message);
+      });
+
+      character.instances.push({ element: elem, offset });
+      map.appendChild(elem);
+    });
+  });
+}
+
+function animateCharacters() {
+  characters.forEach((character) => {
+    if (!character.motion || !character.instances) return;
+
+    const { motion } = character;
+
+    if (motion.pauseTimer > 0) {
+      motion.pauseTimer -= 1;
+      return;
+    }
+
+    if (Math.random() < 0.006) {
+      motion.pauseTimer = 20 + Math.random() * 60;
+      return;
+    }
+
+    character.x += motion.vx;
+    character.y += motion.vy;
+
+    if (character.x > character.baseX + motion.rangeX || character.x < character.baseX - motion.rangeX) {
+      motion.vx *= -1;
+      character.x = clamp(character.x, character.baseX - motion.rangeX, character.baseX + motion.rangeX);
+    }
+
+    if (character.y > character.baseY + motion.rangeY || character.y < character.baseY - motion.rangeY) {
+      motion.vy *= -1;
+      character.y = clamp(character.y, character.baseY - motion.rangeY, character.baseY + motion.rangeY);
+    }
+
+    if (Math.random() < 0.02) {
+      motion.vx *= Math.random() > 0.5 ? 1 : -1;
+      motion.vy *= Math.random() > 0.5 ? 1 : -1;
+    }
+
+    character.instances.forEach(({ element, offset }) => {
+      element.style.left = `${character.x + offset.dx}px`;
+      element.style.top = `${character.y + offset.dy}px`;
+    });
+  });
+
+  requestAnimationFrame(animateCharacters);
+}
+
+function getCharacterImagePath(type) {
+  const map = {
+    chiikawa: 'pic/01chiikawa.avif',
+    hachiware: 'pic/02hachiware.avif',
+    usagi: 'pic/03usagi.avif',
+    momonga: 'pic/04momonga.avif',
+    kurimanju: 'pic/05kurimanju.avif'
+  };
+
+  return map[type] || 'pic/01chiikawa.avif';
+}
+
+function createCharacterSVG(type) {
+  const img = document.createElement('img');
+  img.src = getCharacterImagePath(type);
+  img.alt = type;
+  img.width = 64;
+  img.height = 64;
+  img.className = 'character-image';
+  img.draggable = false;
+  return img;
+}
+
+function updatePlayerPosition() {
+  player.style.left = `${playerState.x}px`;
+  player.style.top = `${playerState.y}px`;
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function wrap(value, max) {
+  // 値を0からmaxの範囲にラップ
+  return ((value % max) + max) % max;
+}
+
+function checkCollisionWithCharacters(newX, newY) {
+  // プレイヤーの中心座標
+  const playerCenterX = newX + playerState.size / 2;
+  const playerCenterY = newY + playerState.size / 2;
+
+  // ワールドのオフセットリスト
+  const offsets = [
+    { dx: 0, dy: 0 },
+    { dx: -worldWidth, dy: 0 },
+    { dx: worldWidth, dy: 0 },
+    { dx: 0, dy: -worldHeight },
+    { dx: 0, dy: worldHeight },
+    { dx: -worldWidth, dy: -worldHeight },
+    { dx: -worldWidth, dy: worldHeight },
+    { dx: worldWidth, dy: -worldHeight },
+    { dx: worldWidth, dy: worldHeight }
+  ];
+
+  for (const character of characters) {
+    // キャラクター（64x64）の中心は32,32
+    const charSize = 64;
+
+    // すべてのオフセット位置でチェック
+    for (const offset of offsets) {
+      const charCenterX = character.x + offset.dx + charSize / 2;
+      const charCenterY = character.y + offset.dy + charSize / 2;
+
+      // 距離を計算
+      const dx = playerCenterX - charCenterX;
+      const dy = playerCenterY - charCenterY;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      // 衝突判定（距離が50以下）
+      if (distance < 50) {
+        // キャラが話す
+        const message = character.lines[Math.floor(Math.random() * character.lines.length)];
+        showCharacterDialogue(character.name, message);
+        
+        // プレイヤーが衝突したキャラを返す
+        return character;
+      }
+    }
+  }
+
+  return null;
+}
+
+function movePlayer(dx, dy) {
+  // 新しい位置を計算
+  const newX = wrap(playerState.x + dx, worldWidth);
+  const newY = wrap(playerState.y + dy, worldHeight);
+
+  // 衝突判定を実施
+  const collidedCharacter = checkCollisionWithCharacters(newX, newY);
+
+  // 衝突がなければ移動
+  if (!collidedCharacter) {
+    playerState.x = newX;
+    playerState.y = newY;
+    updatePlayerPosition();
+  }
+  // 衝突があれば移動しない（キャラの会話はcheckCollisionWithCharacters内で表示される）
+}
+
+function setupControls() {
+  const keyMap = {
+    ArrowUp: [0, -32],
+    ArrowDown: [0, 32],
+    ArrowLeft: [-32, 0],
+    ArrowRight: [32, 0],
+    w: [0, -32],
+    s: [0, 32],
+    a: [-32, 0],
+    d: [32, 0]
+  };
+
+  document.addEventListener('keydown', (event) => {
+    const direction = keyMap[event.key];
+    if (!direction) return;
+    event.preventDefault();
+    movePlayer(direction[0], direction[1]);
+  });
+}
+
+createTown();
+initializePlayer();
+updatePlayerPosition();
+animateCharacters();
+setupControls();
+
+function initializePlayer() {
+  // プレイヤーを空にしてから再構築
+  player.innerHTML = '';
+
+  // SVGで顔を描画（薄いピンク色のかわいい顔）
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('width', '50');
+  svg.setAttribute('height', '50');
+  svg.setAttribute('viewBox', '0 0 50 50');
+  svg.setAttribute('class', 'player-svg');
+  svg.innerHTML = `
+    <defs>
+      <radialGradient id="player-grad" cx="40%" cy="40%">
+        <stop offset="0%" style="stop-color:#ffd4e5;stop-opacity:1" />
+        <stop offset="100%" style="stop-color:#ffb3cc;stop-opacity:1" />
+      </radialGradient>
+    </defs>
+    <!-- 体 -->
+    <circle cx="25" cy="26" r="20" fill="url(#player-grad)" />
+    <!-- 左耳 -->
+    <ellipse cx="12" cy="10" rx="5" ry="8" fill="#ffb3cc" />
+    <!-- 右耳 -->
+    <ellipse cx="38" cy="10" rx="5" ry="8" fill="#ffb3cc" />
+    <!-- 左目 -->
+    <circle cx="18" cy="24" r="4" fill="#1f1f1f" />
+    <circle cx="19" cy="22" r="1.5" fill="#fff" opacity="0.8" />
+    <!-- 右目 -->
+    <circle cx="32" cy="24" r="4" fill="#1f1f1f" />
+    <circle cx="33" cy="22" r="1.5" fill="#fff" opacity="0.8" />
+    <!-- 鼻 -->
+    <circle cx="25" cy="32" r="1.5" fill="#ff99bb" />
+    <!-- 口 -->
+    <path d="M 23 37 Q 25 39 27 37" stroke="#1f1f1f" stroke-width="1.5" fill="none" stroke-linecap="round" />
+  `;
+  player.appendChild(svg);
+
+  // 「あなた」ラベルを追加
+  const label = document.createElement('div');
+  label.className = 'player-label';
+  label.textContent = 'あなた';
+  player.appendChild(label);
+}
