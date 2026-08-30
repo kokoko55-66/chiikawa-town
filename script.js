@@ -32,14 +32,24 @@ function showCharacterDialogue(characterName, message) {
 
   if ('speechSynthesis' in window) {
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(message);
-    const profile = getVoiceProfile(characterName);
+    
+    // 少し遅延させて音声を開始（ブラウザの制限対応）
+    setTimeout(() => {
+      const utterance = new SpeechSynthesisUtterance(message);
+      const profile = getVoiceProfile(characterName);
 
-    utterance.lang = 'ja-JP';
-    utterance.rate = profile.rate;
-    utterance.pitch = profile.pitch;
-    utterance.volume = profile.volume;
-    window.speechSynthesis.speak(utterance);
+      utterance.lang = 'ja-JP';
+      utterance.rate = profile.rate;
+      utterance.pitch = profile.pitch;
+      utterance.volume = profile.volume;
+      
+      // エラーハンドリング
+      utterance.onerror = (e) => {
+        console.warn('音声再生エラー:', e);
+      };
+      
+      window.speechSynthesis.speak(utterance);
+    }, 50);
   }
 }
 
@@ -58,7 +68,7 @@ let worldHeight = getWorldHeight();
 
 const playerState = {
   x: 120,
-  y: isMobileLayout() ? 200 : 120,
+  y: 200,
   size: 50
 };
 
@@ -258,7 +268,7 @@ function createTown() {
       vx: (Math.random() > 0.5 ? 1 : -1) * (0.2 + Math.random() * 0.5),
       vy: (Math.random() > 0.5 ? 1 : -1) * (0.2 + Math.random() * 0.5),
       rangeX: 18 + Math.random() * 28,
-      rangeY: isMobileLayout() ? 50 + Math.random() * 60 : 18 + Math.random() * 28,
+      rangeY: isMobileLayout() ? 120 + Math.random() * 150 : 18 + Math.random() * 28,
       pauseTimer: 0
     };
     character.instances = [];
@@ -385,7 +395,7 @@ function wrap(value, max) {
 }
 
 function clampToWorldBounds(x, y) {
-  const playerSize = isMobileLayout() ? 110 : playerState.size;
+  const playerSize = isMobileLayout() ? 125 : playerState.size;
   const maxX = worldWidth - playerSize;
   const maxY = getWorldHeight() - playerSize;
 
@@ -562,6 +572,12 @@ updatePlayerPosition();
 updateWorldScale();
 animateCharacters();
 setupControls();
+
+// モバイル版で worldHeight が正しく設定されることを確認
+window.addEventListener('load', () => {
+  worldHeight = getWorldHeight();
+  updateWorldScale();
+});
 
 function initializePlayer() {
   // プレイヤーを空にしてから再構築
