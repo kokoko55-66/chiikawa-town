@@ -157,16 +157,16 @@ function createTown() {
 
   const mobileHouses = [
     // 上部
-    { x: 90, y: 15, width: 92, height: 70 },
-    { x: 760, y: 20, width: 92, height: 70 },
-    { x: 500, y: 10, width: 92, height: 70 },
+    { x: 90, y: 10, width: 92, height: 70 },
+    { x: 760, y: 15, width: 92, height: 70 },
+    { x: 500, y: 5, width: 92, height: 70 },
     // 中部
-    { x: 180, y: 150, width: 92, height: 70 },
-    { x: 700, y: 180, width: 92, height: 70 },
+    { x: 180, y: 145, width: 92, height: 70 },
+    { x: 700, y: 165, width: 92, height: 70 },
     // 下部
-    { x: 620, y: 340, width: 92, height: 70 },
-    { x: 330, y: 360, width: 92, height: 70 },
-    { x: 100, y: 350, width: 92, height: 70 }
+    { x: 620, y: 310, width: 92, height: 70 },
+    { x: 330, y: 330, width: 92, height: 70 },
+    { x: 100, y: 320, width: 92, height: 70 }
   ];
 
   const offsets = [
@@ -214,13 +214,13 @@ function createTown() {
 
   const mobileTrees = [
     // 上部
-    { x: 30, y: 30 }, { x: 150, y: 50 }, { x: 320, y: 25 },
-    { x: 520, y: 45 }, { x: 760, y: 35 }, { x: 870, y: 50 },
+    { x: 30, y: 20 }, { x: 150, y: 40 }, { x: 320, y: 15 },
+    { x: 520, y: 35 }, { x: 760, y: 25 }, { x: 870, y: 40 },
     // 中部
-    { x: 100, y: 180 }, { x: 400, y: 200 }, { x: 750, y: 150 },
+    { x: 100, y: 160 }, { x: 400, y: 180 }, { x: 750, y: 130 },
     // 下部
-    { x: 250, y: 340 }, { x: 610, y: 320 }, { x: 720, y: 360 },
-    { x: 50, y: 370 }, { x: 900, y: 350 }
+    { x: 250, y: 310 }, { x: 610, y: 290 }, { x: 720, y: 330 },
+    { x: 50, y: 340 }, { x: 900, y: 320 }
   ];
 
   if (isMobileLayout()) {
@@ -460,7 +460,9 @@ function updateWorldScale() {
   const nextScale = Math.min(rect.width / worldWidth, rect.height / worldHeight);
   worldScale = Number.isFinite(nextScale) ? nextScale : 1;
   world.style.setProperty('--world-scale', worldScale.toFixed(4));
+  world.style.setProperty('--world-height', `${worldHeight}px`);
   world.style.height = `${worldHeight}px`;
+  map.style.setProperty('--map-aspect-ratio', `${worldWidth} / ${worldHeight}`);
 }
 
 function startDragPlayer(event) {

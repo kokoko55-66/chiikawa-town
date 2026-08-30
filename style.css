@@ -24,6 +24,7 @@ body {
   justify-content: center;
   background: linear-gradient(135deg, #f9f4ff 0%, #eff9ff 100%);
   font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic", sans-serif;
+  overflow-x: hidden;
 }
 
 .game-wrapper {
@@ -68,7 +69,7 @@ h1 {
 .map {
   position: relative;
   width: 100%;
-  aspect-ratio: 1000 / 620;
+  aspect-ratio: var(--map-aspect-ratio, 1000 / 620);
   min-height: 360px;
   background:
     linear-gradient(var(--ground), var(--ground)),
@@ -81,7 +82,7 @@ h1 {
   left: 50%;
   top: 50%;
   width: 1000px;
-  height: 620px;
+  height: var(--world-height, 620px);
   transform: translate(-50%, -50%) scale(var(--world-scale, 1));
   transform-origin: center center;
   pointer-events: none;
@@ -278,15 +279,15 @@ h1 {
 
 @media (max-width: 640px) {
   .game-wrapper {
-    padding: 10px;
+    padding: 8px;
     width: 100%;
-    max-width: 100%;
+    max-width: 100vw;
   }
 
   .hud {
     flex-direction: column;
     align-items: flex-start;
-    padding: 0 4px;
+    padding: 0 2px;
   }
 
   .mini-help {
@@ -331,7 +332,7 @@ h1 {
 
   .dialog {
     padding: 12px 14px;
-    margin-left: 4px;
-    margin-right: 4px;
+    margin-left: 2px;
+    margin-right: 2px;
   }
 }
