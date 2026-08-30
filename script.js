@@ -62,7 +62,8 @@ function isMobileLayout() {
 
 function getWorldHeight() {
   const isMobile = isMobileLayout();
-  const height = isMobile ? Math.floor(baseWorldHeight / 2) : baseWorldHeight;
+  // 現在の縦幅（baseWorldHeight/2）の2倍 = baseWorldHeight
+  const height = isMobile ? Math.floor(baseWorldHeight / 2) * 2 : baseWorldHeight;
   console.log('getWorldHeight() - isMobile:', isMobile, 'calculated height:', height);
   return height;
 }
@@ -90,7 +91,7 @@ const characters = [
     className: 'chiikawa',
     x: 240,
     y: 80,
-    mobileY: 80,
+    mobileY: 160,
     lines: [
       'わァ……',
       'ヤーッ！',
@@ -108,7 +109,7 @@ const characters = [
     className: 'usagi',
     x: 520,
     y: 150,
-    mobileY: 200,
+    mobileY: 400,
     lines: [
       'ヤハ！ ここ、すごく落ち着くね。',
       'ウラッ……おひるね、しちゃってもいいかも。',
@@ -124,7 +125,7 @@ const characters = [
     className: 'hachiware',
     x: 780,
     y: 90,
-    mobileY: 45,
+    mobileY: 90,
     lines: [
       '今日はちょっとだけ張り切ってるよ。',
       'このあたり、空気がいいね。ってことは、きっと大丈夫。',
@@ -140,7 +141,7 @@ const characters = [
     className: 'kurimanju',
     x: 310,
     y: 270,
-    mobileY: 310,
+    mobileY: 620,
     lines: [
       'ハーッ……',
       'うっ……ハーッ…',
@@ -156,7 +157,7 @@ const characters = [
     className: 'momonga',
     x: 660,
     y: 280,
-    mobileY: 320,
+    mobileY: 640,
     lines: [
       'イーヤーヤダヤダ',
       'どうウマイ？ ちゃんと見てるでしょ？',
@@ -182,16 +183,16 @@ function createTown() {
 
   const mobileHouses = [
     // 上部
-    { x: 80, y: 35, width: 92, height: 70 },
-    { x: 750, y: 45, width: 92, height: 70 },
-    { x: 450, y: 30, width: 92, height: 70 },
+    { x: 80, y: 70, width: 92, height: 70 },
+    { x: 750, y: 90, width: 92, height: 70 },
+    { x: 450, y: 60, width: 92, height: 70 },
     // 中部
-    { x: 150, y: 115, width: 92, height: 70 },
-    { x: 750, y: 130, width: 92, height: 70 },
+    { x: 150, y: 230, width: 92, height: 70 },
+    { x: 750, y: 260, width: 92, height: 70 },
     // 下部
-    { x: 600, y: 200, width: 92, height: 70 },
-    { x: 280, y: 215, width: 92, height: 70 },
-    { x: 50, y: 185, width: 92, height: 70 }
+    { x: 600, y: 400, width: 92, height: 70 },
+    { x: 280, y: 430, width: 92, height: 70 },
+    { x: 50, y: 370, width: 92, height: 70 }
   ];
 
   const offsets = [
@@ -239,13 +240,13 @@ function createTown() {
 
   const mobileTrees = [
     // 上部
-    { x: 30, y: 15 }, { x: 150, y: 30 }, { x: 320, y: 12 },
-    { x: 520, y: 40 }, { x: 760, y: 20 }, { x: 870, y: 50 },
+    { x: 30, y: 30 }, { x: 150, y: 60 }, { x: 320, y: 24 },
+    { x: 520, y: 80 }, { x: 760, y: 40 }, { x: 870, y: 100 },
     // 中部
-    { x: 100, y: 100 }, { x: 400, y: 130 }, { x: 750, y: 115 },
+    { x: 100, y: 200 }, { x: 400, y: 260 }, { x: 750, y: 230 },
     // 下部
-    { x: 250, y: 190 }, { x: 610, y: 215 }, { x: 720, y: 200 },
-    { x: 50, y: 230 }, { x: 900, y: 180 }
+    { x: 250, y: 380 }, { x: 610, y: 430 }, { x: 720, y: 400 },
+    { x: 50, y: 460 }, { x: 900, y: 360 }
   ];
 
   if (isMobileLayout()) {
@@ -281,7 +282,7 @@ function createTown() {
       vx: (Math.random() > 0.5 ? 1 : -1) * (0.2 + Math.random() * 0.5),
       vy: (Math.random() > 0.5 ? 1 : -1) * (0.2 + Math.random() * 0.5),
       rangeX: 18 + Math.random() * 28,
-      rangeY: isMobileLayout() ? 120 + Math.random() * 150 : 18 + Math.random() * 28,
+      rangeY: isMobileLayout() ? 240 + Math.random() * 300 : 18 + Math.random() * 28,
       pauseTimer: 0
     };
     character.instances = [];
