@@ -62,7 +62,7 @@ function isMobileLayout() {
 
 function getWorldHeight() {
   const isMobile = isMobileLayout();
-  const height = isMobile ? Math.floor(baseWorldHeight * 2 / 3) : baseWorldHeight;
+  const height = isMobile ? Math.floor(baseWorldHeight / 2) : baseWorldHeight;
   console.log('getWorldHeight() - isMobile:', isMobile, 'calculated height:', height);
   return height;
 }
@@ -181,17 +181,17 @@ function createTown() {
   ];
 
   const mobileHouses = [
-    // 上部（y: 0-130）
-    { x: 80, y: 20, width: 92, height: 70 },
-    { x: 750, y: 30, width: 92, height: 70 },
-    { x: 450, y: 10, width: 92, height: 70 },
-    // 中部（y: 130-275）
-    { x: 150, y: 160, width: 92, height: 70 },
-    { x: 750, y: 180, width: 92, height: 70 },
-    // 下部（y: 275-413）
-    { x: 600, y: 320, width: 92, height: 70 },
-    { x: 280, y: 340, width: 92, height: 70 },
-    { x: 50, y: 310, width: 92, height: 70 }
+    // 上部
+    { x: 80, y: 35, width: 92, height: 70 },
+    { x: 750, y: 45, width: 92, height: 70 },
+    { x: 450, y: 30, width: 92, height: 70 },
+    // 中部
+    { x: 150, y: 115, width: 92, height: 70 },
+    { x: 750, y: 130, width: 92, height: 70 },
+    // 下部
+    { x: 600, y: 200, width: 92, height: 70 },
+    { x: 280, y: 215, width: 92, height: 70 },
+    { x: 50, y: 185, width: 92, height: 70 }
   ];
 
   const offsets = [
@@ -238,14 +238,14 @@ function createTown() {
   ];
 
   const mobileTrees = [
-    // 上部（y: 0-130）
-    { x: 30, y: 25 }, { x: 150, y: 50 }, { x: 320, y: 30 },
-    { x: 520, y: 45 }, { x: 760, y: 35 }, { x: 870, y: 55 },
-    // 中部（y: 130-275）
-    { x: 100, y: 165 }, { x: 400, y: 190 }, { x: 750, y: 145 },
-    // 下部（y: 275-413）
-    { x: 250, y: 290 }, { x: 610, y: 310 }, { x: 720, y: 295 },
-    { x: 50, y: 320 }, { x: 900, y: 305 }
+    // 上部
+    { x: 30, y: 15 }, { x: 150, y: 30 }, { x: 320, y: 12 },
+    { x: 520, y: 40 }, { x: 760, y: 20 }, { x: 870, y: 50 },
+    // 中部
+    { x: 100, y: 100 }, { x: 400, y: 130 }, { x: 750, y: 115 },
+    // 下部
+    { x: 250, y: 190 }, { x: 610, y: 215 }, { x: 720, y: 200 },
+    { x: 50, y: 230 }, { x: 900, y: 180 }
   ];
 
   if (isMobileLayout()) {
@@ -494,6 +494,16 @@ function movePlayer(dx, dy) {
 
 function updateWorldScale() {
   worldHeight = getWorldHeight();
+
+  // aspect-ratio未対応環境でも崩れないよう、幅を基準にJSで高さをpx指定する
+  if (map) {
+    const mapWidth = map.getBoundingClientRect().width;
+    const desiredHeight = Math.round(mapWidth * (worldHeight / worldWidth));
+    if (desiredHeight > 0) {
+      map.style.height = `${desiredHeight}px`;
+    }
+  }
+
   const rect = map.getBoundingClientRect();
   const nextScale = Math.min(rect.width / worldWidth, rect.height / worldHeight);
   worldScale = Number.isFinite(nextScale) ? nextScale : 1;
