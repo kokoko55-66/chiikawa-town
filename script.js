@@ -145,6 +145,14 @@ function createTown() {
     { x: 220, y: 500, width: 92, height: 70 }
   ];
 
+  const mobileHouses = [
+    { x: 100, y: 60, width: 92, height: 70 },
+    { x: 760, y: 70, width: 92, height: 70 },
+    { x: 610, y: 540, width: 92, height: 70 },
+    { x: 350, y: 600, width: 92, height: 70 },
+    { x: 200, y: 140, width: 92, height: 70 }
+  ];
+
   const offsets = [
     { dx: 0, dy: 0 },
     { dx: -worldWidth, dy: 0 },
@@ -158,17 +166,29 @@ function createTown() {
   ];
   const sceneOffsets = window.innerWidth <= 640 ? [{ dx: 0, dy: 0 }] : offsets;
 
-  houses.forEach((house) => {
-    sceneOffsets.forEach((offset) => {
+  if (isMobileLayout()) {
+    mobileHouses.forEach((house) => {
       const elem = document.createElement('div');
       elem.className = 'house';
-      elem.style.left = `${house.x + offset.dx}px`;
-      elem.style.top = `${house.y + offset.dy}px`;
+      elem.style.left = `${house.x}px`;
+      elem.style.top = `${house.y}px`;
       elem.style.width = `${house.width}px`;
       elem.style.height = `${house.height}px`;
       world.appendChild(elem);
     });
-  });
+  } else {
+    houses.forEach((house) => {
+      sceneOffsets.forEach((offset) => {
+        const elem = document.createElement('div');
+        elem.className = 'house';
+        elem.style.left = `${house.x + offset.dx}px`;
+        elem.style.top = `${house.y + offset.dy}px`;
+        elem.style.width = `${house.width}px`;
+        elem.style.height = `${house.height}px`;
+        world.appendChild(elem);
+      });
+    });
+  }
 
   const trees = [
     { x: 80, y: 300 }, { x: 170, y: 330 }, { x: 390, y: 300 },
@@ -176,15 +196,31 @@ function createTown() {
     { x: 890, y: 390 }, { x: 290, y: 520 }, { x: 600, y: 560 }
   ];
 
-  trees.forEach((tree) => {
-    sceneOffsets.forEach((offset) => {
+  const mobileTrees = [
+    { x: 40, y: 90 }, { x: 160, y: 220 }, { x: 330, y: 80 },
+    { x: 520, y: 210 }, { x: 770, y: 120 }, { x: 850, y: 290 },
+    { x: 250, y: 520 }, { x: 610, y: 470 }, { x: 720, y: 560 }
+  ];
+
+  if (isMobileLayout()) {
+    mobileTrees.forEach((tree) => {
       const elem = document.createElement('div');
       elem.className = 'tree';
-      elem.style.left = `${tree.x + offset.dx}px`;
-      elem.style.top = `${tree.y + offset.dy}px`;
+      elem.style.left = `${tree.x}px`;
+      elem.style.top = `${tree.y}px`;
       world.appendChild(elem);
     });
-  });
+  } else {
+    trees.forEach((tree) => {
+      sceneOffsets.forEach((offset) => {
+        const elem = document.createElement('div');
+        elem.className = 'tree';
+        elem.style.left = `${tree.x + offset.dx}px`;
+        elem.style.top = `${tree.y + offset.dy}px`;
+        world.appendChild(elem);
+      });
+    });
+  }
 
   characters.forEach((character) => {
     character.baseX = character.x;
@@ -298,7 +334,7 @@ function createCharacterSVG(type) {
   img.src = getCharacterImagePath(type);
   img.alt = type;
   const isMobile = window.innerWidth <= 640;
-  const size = isMobile ? 92 : 64;
+  const size = isMobile ? 110 : 64;
   img.width = size;
   img.height = size;
   img.className = 'character-image';
@@ -497,10 +533,13 @@ function initializePlayer() {
   // プレイヤーを空にしてから再構築
   player.innerHTML = '';
 
+  const isMobile = isMobileLayout();
+  const svgSize = isMobile ? 96 : 50;
+
   // SVGで顔を描画（薄いピンク色のかわいい顔）
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('width', '50');
-  svg.setAttribute('height', '50');
+  svg.setAttribute('width', String(svgSize));
+  svg.setAttribute('height', String(svgSize));
   svg.setAttribute('viewBox', '0 0 50 50');
   svg.setAttribute('class', 'player-svg');
   svg.innerHTML = `
@@ -535,3 +574,11 @@ function initializePlayer() {
   label.textContent = 'あなた';
   player.appendChild(label);
 }
+
+window.addEventListener('resize', () => {
+  if (!player || !player.querySelector('svg')) return;
+  const svg = player.querySelector('svg');
+  const size = isMobileLayout() ? 96 : 50;
+  svg.setAttribute('width', String(size));
+  svg.setAttribute('height', String(size));
+});
